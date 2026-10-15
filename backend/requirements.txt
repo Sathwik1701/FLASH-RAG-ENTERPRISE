@@ -1,0 +1,26 @@
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.9.0
+pydantic-settings>=2.5.0
+python-multipart>=0.0.12
+
+# Vector DB & Embeddings
+qdrant-client>=1.11.0
+fastembed>=0.3.6
+openai>=1.50.0
+
+# Document Layout Parsing & Chunking
+pymupdf>=1.24.10
+langchain-text-splitters>=0.3.0
+langchain-core>=0.3.0
+langgraph>=0.2.30
+
+# Reranking
+flashrank>=0.2.9
+sentence-transformers>=3.1.1
+torch>=2.4.0
+
+# Utilities
+httpx>=0.27.2
+python-dotenv>=1.0.1
+aiofiles>=24.1.0

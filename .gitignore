@@ -1,0 +1,57 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing & Cache
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Node & Frontend
+node_modules/
+.npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+frontend/dist/
+frontend/dist-ssr/
+*.local
+
+# Local Vector DB & Persistent Data (Important: Do not commit local DB to git)
+qdrant_local_data/
+backend/qdrant_local_data/
+*.pdf
+
+# Environment & Secrets (Never commit production API keys or tokens)
+.env
+backend/.env
+frontend/.env
+*.env.local

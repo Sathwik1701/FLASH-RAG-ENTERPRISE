@@ -1,0 +1,30 @@
+services:
+  # Backend API Web Service on Render
+  - type: web
+    name: rag-multimodal-backend
+    env: docker
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
+    plan: starter
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: CORS_ORIGINS
+        value: '["*"]'
+      - key: LLM_PROVIDER
+        value: groq
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: qwen/qwen3.8-27b
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: QDRANT_COLLECTION_NAME
+        value: rag_multimodal_documents
+      - key: RERANKER_TOP_K
+        value: 6
+      - key: RERANKER_SCORE_THRESHOLD
+        value: 0.25
