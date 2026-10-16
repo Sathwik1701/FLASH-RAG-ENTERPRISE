@@ -8,6 +8,7 @@ from app.core.config import settings
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
 @router.post("/upload", response_model=IngestResponse)
+@router.post("/upload/", response_model=IngestResponse)
 async def upload_document(file: UploadFile = File(...)):
     """
     Ingest a PDF document:
