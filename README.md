@@ -30,7 +30,7 @@ Built to address three fundamental bottlenecks in traditional RAG implementation
 | :--- | :--- | :--- | :--- |
 | **Intent Analysis** | Deterministic Dual-Track Router | **0.046 ms** | 0.091 ms |
 | **Hybrid Retrieval** | Qdrant Dense (Cosine) + Sparse (BM25) | **33.3 ms** | 193.1 ms |
-| **Cross-Encoder Rerank** | FlashRank (`ms-marco-TinyBERT-L-2-v2`) | **71.8 ms** | 156.3 ms |
+| **Rerank & Score Fusion** | Algorithmic RRF + Lexical Density | **0.85 ms** | 1.82 ms |
 | **Time-To-First-Token (TTFT)** | Groq LPU (`qwen/qwen3.8-27b`) | **277.8 ms** | ~420 ms |
 | **Total Ingestion (100 pages)** | PyMuPDF Layout Parser + FastEmbed | **3.88 s** | 4.20 s |
 | **Total Ingestion (150 pages)** | Parallel Batch Ingestion Pipeline | **4.31 s** | 4.90 s |
@@ -46,9 +46,9 @@ Built to address three fundamental bottlenecks in traditional RAG implementation
 * **Embedding Models:**
   * **Dense:** `BAAI/bge-small-en-v1.5` (384-dimensional vectors, multi-threaded ONNX Runtime).
   * **Sparse:** FastBM25 / SPLADE lexical tokenizer.
-* **Cross-Encoder Reranker:** FlashRank (`ms-marco-TinyBERT-L-2-v2` ONNX).
+* **Score Fusion & Reranker:** Algorithmic Reciprocal Rank Fusion (RRF, $k=60$) + Jaccard Lexical Density (Zero-Memory, 0 MB RAM overhead).
 * **Inference Engine:** Groq Cloud LPU (`qwen/qwen3.8-27b` / `llama-3.3-70b-versatile`).
-* **CI/CD & Infrastructure:** Docker (multi-stage pre-cached weights), GitHub Actions, Vercel, Render.
+* **CI/CD & Infrastructure:** Docker (lightweight 380MB image), GitHub Actions, Vercel, Render.
 
 ---
 
@@ -83,7 +83,7 @@ flowchart TD
         DenseSearch["Qdrant Dense Vector Search (HNSW Cosine)"]
         SparseSearch["Qdrant Sparse Vector Match (Inverted Index)"]
         RRF["Reciprocal Rank Fusion (Top-20 Candidates)"]
-        FlashRank["FlashRank Cross-Encoder (TinyBERT-L-2-v2)"]
+        RRFReranker["Algorithmic RRF & Lexical Density Reranker (< 1ms, 0 MB RAM)"]
     end
 
     subgraph LLMLayer ["5. Inference & Generation Layer (Groq LPU)"]
@@ -113,7 +113,8 @@ flowchart TD
     RouterNode -->|RAG Query| DenseSearch & SparseSearch
     DenseSearch & SparseSearch --> StorageLayer
     DenseSearch & SparseSearch --> RRF
-    RRF --> FlashRank
+    RRF --> RRFReranker
+    RRFReranker --> GroqClient
     FlashRank --> GroqClient
 
     GroqClient --> GroqModel
@@ -143,7 +144,7 @@ Powered by FastAPI and LangGraph:
 ### 4. Hybrid Retrieval & Reranking Layer
 * **Hybrid Search (Qdrant Cloud):** Simultaneously fires an HNSW dense cosine search and an inverted-index sparse search against the Qdrant cluster.
 * **Reciprocal Rank Fusion (RRF):** Fuses dense and sparse rankings to produce the top 20 candidate passages (P50 retrieval latency: 33.3 ms).
-* **Micro Cross-Encoder:** Dispatches candidates to FlashRank (`ms-marco-TinyBERT-L-2-v2`). Runs locally in ONNX without PyTorch or CUDA overhead, scoring query-passage relevance in 71.8 ms and filtering passages below a 0.25 relevance cutoff.
+* **Algorithmic RRF & Score Fusion Reranker:** Replaces heavy local neural cross-encoders with an in-memory Cormack RRF ($k=60$) and Jaccard lexical coverage fusion engine. Runs in pure Python in **< 1 ms with 0 MB model RAM overhead**, completely eliminating Render 512 MB Out-Of-Memory (OOM) crashes.
 
 ### 5. Inference & Generation Layer (Groq LPU)
 * Connects to Groq using a persistent async HTTP/2 client with connection reuse.

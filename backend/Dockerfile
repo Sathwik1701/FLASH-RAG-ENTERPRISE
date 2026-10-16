@@ -22,10 +22,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Pre-cache local ONNX embedding weights and FlashRank models at image build time
+# Pre-cache local ONNX embedding weights at image build time
 # (Eliminates runtime cold-start download delay on Render)
 RUN python -c "from fastembed import TextEmbedding; TextEmbedding(model_name='BAAI/bge-small-en-v1.5')"
-RUN python -c "from flashrank import Ranker; Ranker(model_name='ms-marco-TinyBERT-L-2-v2', cache_dir='/tmp/flashrank')"
 
 # Copy application code
 COPY . .

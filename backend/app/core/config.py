@@ -38,9 +38,8 @@ class Settings(BaseSettings):
     QDRANT_COLLECTION_NAME: str = "rag_multimodal_documents"
     QDRANT_LOCAL_PATH: str = "./qdrant_local_data"
 
-    # FlashRank Reranker Configuration
-    RERANKER_MODEL_NAME: str = "ms-marco-TinyBERT-L-2-v2"
-    RERANKER_SCORE_THRESHOLD: float = 0.25
+    # Algorithmic RRF Reranker Configuration (Zero-Memory)
+    RERANKER_SCORE_THRESHOLD: float = 0.20
     RERANKER_TOP_K: int = 6
 
 settings = Settings()
